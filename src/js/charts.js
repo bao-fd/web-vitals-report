@@ -127,7 +127,7 @@ function drawTimeline(name, dateValues) {
 }
 
 function drawWarnings(isSampled) {
-  document.getElementById('report-warnings').innerHTML =  isSampled ? `
+  document.getElementById('report-warnings').innerHTML = isSampled ? `
     <aside class="Report-sampleWarning">
       <strong><i>⚠️</i> Warning:</strong>
       This report is based on a sample of the full user base.
@@ -174,7 +174,7 @@ function drawTable(id, dimensionName, dimensionData) {
       </tr>
     </thead>
     <tbody>
-      ${dimensionData.slice(0, 5).map(([dimension, values]) => {
+      ${dimensionData.slice(0, 10).map(([dimension, values]) => {
         return segmentNames.map((segment, i) => `<tr>
           ${i === 0
             ? `<td class="Table-dimension" rowspan="2">${e(dimension)}</td>`
@@ -223,7 +223,7 @@ function drawDebugInfo(pages) {
           </th>
           <th class="Table-debugHeader" colspan="4" id="${path}">${path}</th>
         </tr>
-        ${['LCP', 'FID', 'CLS'].map((metric) => `
+        ${['LCP', 'FID', 'CLS', 'FCP', 'TTFB'].map((metric) => `
           ${Object.keys(page[metric]).map((segment) => {
             let debugEntries = page[metric][segment].debug;
             if (debugEntries) {
@@ -303,10 +303,11 @@ function drawDebugInfo(pages) {
 
 function score(metric, p75) {
   const thresholds = {
+    FCP: [1800, 300],
     LCP: [2500, 4000],
     FID: [100, 300],
     CLS: [0.1, 0.25],
-    // LCP: [1100, 2000],
+    TTFB: [800, 1800],
     // FID: [4, 10],
     // CLS: [0.1, 0.25],
   };
@@ -347,6 +348,17 @@ export function renderCharts(report, reportOpts) {
     const p98 = p(98, metric.values);
 
     switch (name) {
+      case 'FCP':
+        maxValue = Math.max(Math.ceil(p98 / 1000) * 1000, 3000);
+
+        bucketSize = 100;
+        if (maxValue > 5000) {
+          bucketSize = 200;
+        }
+        if (maxValue > 10000) {
+          bucketSize = 500;
+        }
+        break;
       case 'LCP':
         maxValue = Math.max(Math.ceil(p98 / 1000) * 1000, 3000);
 
@@ -379,6 +391,17 @@ export function renderCharts(report, reportOpts) {
         }
         if (maxValue > 1) {
           bucketSize = 0.1;
+        }
+        break;
+      case 'TTFB':
+        maxValue = Math.max(Math.ceil(p98 / 1000) * 1000, 3000);
+
+        bucketSize = 100;
+        if (maxValue > 5000) {
+          bucketSize = 200;
+        }
+        if (maxValue > 10000) {
+          bucketSize = 500;
         }
         break;
     }

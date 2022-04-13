@@ -56,6 +56,8 @@ function validateOpts(opts = {}) {
     lcpName: 'LCP',
     fidName: 'FID',
     clsName: 'CLS',
+    ttfbName: 'TTFB',
+    fcpName: 'FCP',
     filters: '',
     debugDim: '',
     ...opts,
@@ -178,6 +180,7 @@ async function onSubmit(event) {
       timeout(300),
     ]);
     report = results[0];
+    console.log(reportOpts);
     renderCharts(report, reportOpts);
   } catch (requestError) {
     console.error(requestError);
@@ -319,6 +322,16 @@ const app = (state, data) => {
                 <label>CLS name</label>
                 <input id="opts:clsName" type="text"
                        .value=${opts.clsName}>
+              </div>
+                <div class="Form-field">
+                <label>FCP name</label>
+                <input id="opts:clsName" type="text"
+                       .value=${opts.fcpName}>
+              </div>
+                <div class="Form-field">
+                <label>TTFB name</label>
+                <input id="opts:clsName" type="text"
+                       .value=${opts.ttfbName}>
               </div>
             </div>
             <div class="Form-field">
